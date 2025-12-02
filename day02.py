@@ -4,13 +4,6 @@ import aoc
 import sys
 
 
-def valid(codes, l, offset):
-    for i in range(1, int(l / offset)):
-        if codes[:offset] != codes[(i * offset):((i + 1) * offset)]:
-            return True
-    return False
-
-
 def invalid(code):
     codes = str(code)
     l = len(codes)
@@ -18,7 +11,7 @@ def invalid(code):
         if l % i > 0:
             continue
         step = int(l / i)
-        if not valid(codes, l, step):
+        if codes == codes[:step]*i:
             return i
     return 0
 
