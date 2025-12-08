@@ -8,17 +8,19 @@ import aoc
 
 def connect(boxes, a, b):
     """ Connect box a to box b """
-    if boxes[a]['circuit'] == boxes[b]['circuit']:
-        return
 
-    both = [boxes[a]['circuit'], boxes[b]['circuit']]
-    c = min(both)
-    d = max(both)
+    boxes[a]['connected'].add(b)
+    boxes[b]['connected'].add(a)
 
-    boxes[c]['circuitnodes'] |= boxes[d]['circuitnodes']
-    boxes[d]['circuitnodes'] = set()
-    boxes[a]['circuit'] = c
-    boxes[b]['circuit'] = c
+
+def trace(boxes, ind, seen):
+    result = set([ind])
+    seen.add(ind)
+
+    for node in boxes[ind]['connected']:
+        if node not in seen:
+            result |= trace(boxes, node, seen)
+    return result
 
 
 def __main__():
@@ -33,8 +35,7 @@ def __main__():
         boxes.append(
             {
                 "coord": [int(x) for x in point.split(',')],
-                "circuit": i,
-                "circuitnodes": set([i])
+                "connected": set()
             }
         )
         i += 1
@@ -50,17 +51,45 @@ def __main__():
         a, b, _ = links[i]
         connect(boxes, a, b)
 
-    for box in boxes:
-        circuitlens.append(len(box['circuitnodes']))
+    seen = set()
+
+    for i in range(len(boxes)):
+        if i in seen:
+            continue
+        cl = len(trace(boxes, i, seen))
+        if cl > 0:
+            circuitlens.append(cl)
 
     circuitlens.sort(reverse=True)
-    print(sum(circuitlens))
-    print(circuitlens[:3])
     part1 = math.prod(circuitlens[:3])
 
     print(f"Part 1: {part1}")
+    pointer = 1000
+    more = len(circuitlens) - 1
+
+    while more > 0:
+        for i in range(pointer, pointer + more):
+            a, b, _ = links[i]
+            connect(boxes, a, b)
+
+        seen = set()
+        circuitlens = []
+        pointer += more
+
+        for i in range(len(boxes)):
+            if i in seen:
+                continue
+
+            cl = len(trace(boxes, i, seen))
+
+            if cl > 0:
+                circuitlens.append(cl)
+
+        more = len(circuitlens) - 1
+
+    part2 = boxes[a]['coord'][0] * boxes[b]['coord'][0]
+
     print(f"Part 2: {part2}")
-    # 8360 low
 
 
 if __name__ == '__main__':
