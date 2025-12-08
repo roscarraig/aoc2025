@@ -9,25 +9,27 @@ def __main__():
     part1 = 0
     part2 = 0
     homework = []
+    lines = []
 
     for line in aoc.read_file(sys.argv[1]).strip().split("\n"):
         homework.append(line.split())
+        lines.append(line)
 
     print(homework)
     for i in range(len(homework[0])):
         val = 0
-        op = homework[len(homework) - 1][i]
-        if op == '*':
+        oper = homework[len(homework) - 1][i]
+        if oper == '*':
             val = 1
         for j in range(len(homework) - 1):
-            if op == '+':
+            if oper == '+':
                 val += int(homework[j][i])
             else:
                 val *= int(homework[j][i])
         part1 += val
 
-    print (f"Part 1: {part1}")
-    print (f"Part 2: {part2}")
+    print(f"Part 1: {part1}")
+    print(f"Part 2: {part2}")
 
 
 if __name__ == '__main__':
