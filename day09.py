@@ -6,10 +6,12 @@ import aoc
 
 
 def dist(a, b):
+    """ Calcuate rectangle area """
     return (abs(a[0] - b[0]) + 1) * (abs(a[1] - b[1]) + 1)
 
 
-def dir(a, b):
+def pdir(a, b):
+    """ Work out the direction of travel """
     if b[0] > a[0]:
         return 0
     if b[1] > a[1]:
@@ -34,7 +36,10 @@ def turn(a, b):
 def isopposite(tiles, dirs, a, b):
     """ Have validated that the data set is moving clockwise """
 
-    return True
+    n = len(tiles)
+    if tiles[a][0] > tiles[b][0] and tiles[a][1] > tiles[b][1]:
+        print("case 1")
+
     if tiles[a][0] > tiles[b][0]:
         if dirs[a] == 3 or dirs[b] == 1:
             return False
@@ -82,7 +87,7 @@ def __main__():
             areas.append(dist(tile, newtile))
         if len(tiles) > 0:
             tile = tiles[-1]
-            newdir = dir(tile, newtile)
+            newdir = pdir(tile, newtile)
             if pointed < 0:
                 pointed = newdir
                 dirs.append(-1)
