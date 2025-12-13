@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" Advent of code day 8 """
+""" Advent of code day 9 """
 
 import sys
 import aoc
