@@ -2,6 +2,7 @@
 """ Advent of code day 10 """
 
 import sys
+import numpy as np
 import aoc
 
 
@@ -71,6 +72,30 @@ def find_presses2(target, jolt, buttons):
                     return count
                 nextwave.append(newjolt)
         wave = nextwave
+
+
+def nttest():
+    a1 = np.array([
+        [0, 0, 0, 1],
+        [0, 1, 0, 1],
+        [0, 0, 1, 0],
+        [0, 0, 1, 1],
+        [1, 0, 1, 0],
+        [1, 1, 0, 0]
+    ])
+
+    a = np.array([
+        [0, 0, 0, 0, 1, 1],
+        [0, 1, 0, 0, 0, 1],
+        [0, 0, 1, 1, 1, 0],
+        [1, 1, 0, 1, 0, 0]
+    ])
+
+    b = np.array([3, 5, 4, 7])
+
+    x = np.linalg.lstsq(a, b)
+
+    print(x)
 
 
 def __main__():
