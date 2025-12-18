@@ -20,16 +20,6 @@ def press2(target, button):
     return result
 
 
-def jcheck(target, jolt):
-    jpass = 1
-    for i in range(len(target)):
-        if jolt[i] > target[i]:
-            return 2
-        if jolt[i] != target[i]:
-            jpass = 0
-    return jpass
-
-
 def find_presses(target, buttons):
     count = 0
     wave = [list(target)]
@@ -47,7 +37,6 @@ def find_presses(target, buttons):
                 newtarget = press(wave[i], buttons[j])
                 newjolt = press2(jolted[i], buttons[j])
                 if max(newtarget) == 0:
-                    print('J', newjolt)
                     return count, newjolt
                 nextwave.append(newtarget)
                 nextpress.append(j)
@@ -57,71 +46,49 @@ def find_presses(target, buttons):
         jolted = nextjolt
 
 
-def find_presses2a(jolt, buttons):
-    count = 0
-
-    if max(jolt) == 0:
-        return 0
-
-    c, j = find_presses([(x % 1) for x in jolt], buttons)
-    count += c
-    print('Before', jolt)
-    jolt = [jolt[i] - j[i] for i in range(len(jolt))]
-    print('After', jolt)
-    count += 2 * find_presses2a([(x >> 1) for x in jolt], buttons)
-    print(count)
-
-    return count
-
-
-def find_presses2(jolt, buttons):
-    count = 0
-    wave = [[0] * len(jolt)]
-
-    while True:
-        count += 1
-        nextwave = []
-        print(len(wave))
-
-        for i in range(len(wave)):
-            for j in range(len(buttons)):
-                newjolt = press2(wave[i], buttons[j])
-                jc = jcheck(jolt, newjolt)
-                if jc == 2:
-                    continue
-                if jc == 1:
-                    print(count)
-                    print("-----")
-                    return count
-                nextwave.append(newjolt)
-        wave = nextwave
-
-
-def lintest(jolt, buttons):
-    arrin = []
-    res = [0] * len(jolt)
-
-    for _ in range(len(jolt)):
-        arrin.append([0] * len(buttons))
+def click(jolt, buttons, presses):
+    rjolt = list(jolt)
+    clicks = 0
 
     for i in range(len(buttons)):
-        for x in buttons[i]:
-            arrin[x][i] = 1
+        if presses & (1 << i):
+            for item in buttons[i]:
+                rjolt[item] -= 1
+            clicks += 1
+    for item in rjolt:
+        if item % 2:
+            clicks = 1000000
+    return rjolt, clicks
 
-    a = np.array(arrin, dtype=int)
-    b = np.array(jolt)
-    ai = np.linalg.pinv(a)
-    bi = np.dot(ai, b)
-    print(ai)
-    print(bi)
-    x = np.linalg.lstsq(a, b)
-    print(x[0])
-    for i in range(len(buttons)):
-        for y in buttons[i]:
-            res[y] += int(x[0][i])
-    print(res)
-    print(jolt)
-    print('----')
+
+def find_presses2(jolt, buttons, cache):
+    tjolt = tuple(jolt)
+
+    if tjolt in cache:
+        return cache[tjolt]
+
+    cache[tjolt] = 1000000
+
+    for item in jolt:
+        if item < 0:
+            return cache[tjolt]
+
+    bjolt = [x % 2 for x in jolt]
+
+    for i in range(1 << len(buttons)):
+        rjolt, clicks = click(bjolt, buttons, i)
+        if clicks >= 1000000:
+            continue
+        njolt = [jolt[j] + rjolt[j] - bjolt[j] for j in range(len(jolt))]
+
+        if min(njolt) < 0:
+            continue
+        if max(njolt) > 0:
+            clicks += 2 * find_presses2([x >> 1 for x in njolt], buttons, cache)
+        if clicks < cache[tjolt]:
+            cache[tjolt] = clicks
+
+    return cache[tjolt]
 
 
 def __main__():
@@ -129,13 +96,13 @@ def __main__():
     part2 = 0
 
     for line in aoc.read_file(sys.argv[1]).strip('\n').split("\n"):
+        cache = {}
         target = [0 if x == '.' else 1 for x in line[1:].split(']')[0]]
         buttons = [[int(y) for y in x[1:-1].split(',')] for x in line.split('] ')[1].split(' ')[:-1]]
         jolt = [int(x) for x in line.split('{')[1][:-1].split(',')]
         c, _ = find_presses(target, buttons)
         part1 += c
-        part2 += find_presses2a(jolt, buttons)
-        lintest(jolt, buttons)
+        part2 += find_presses2(jolt, buttons, cache)
 
     print(f"Part 1: {part1}")
     print(f"Part 2: {part2}")
