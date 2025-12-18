@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" Advent of code day 10 """
+""" Advent of code day 11 """
 
 import sys
 import aoc
@@ -30,19 +30,18 @@ def __main__():
     part1 = 0
     part2 = 0
     routes = {"out": []}
-    cache = {}
 
     for line in aoc.read_file(sys.argv[1]).strip('\n').split("\n"):
         src, dest = line.split(': ')
         routes[src] = dest.split(' ')
 
     if "you" in routes:
-        part1 = len(trace(routes, "you", cache))
+        part1 = len(trace(routes, "you", {}))
 
     print(f"Part 1: {part1}")
 
     dfcount = 0
-    dacout = trace(routes, "dac", cache)
+    dacout = trace(routes, "dac", {})
 
     for item in dacout:
         if "fft" in item:
@@ -55,8 +54,6 @@ def __main__():
     else:
         svrdac = trace(routes, "svr", {}, "dac")
         part2 = len(svrdac) * dfcount
-
-    # part2 = len([x for x in trace(routes, "svr", cache) if 'dac' in x and 'fft' in x])
 
     print(f"Part 2: {part2}")
 
